@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Link Scrubber</title>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700&display=swap">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
+  <style>
+    body {
+      background-color: #f5f5f5;
+      font-family: Roboto, sans-serif;
+    }
+    .container {
+      margin-top: 50px;
+    }
+    .scrub-btn, .clear-list-btn {
+      margin-top: 15px;
+    }
+    .log {
+      margin-top: 30px;
+    }
+    .card-panel {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .truncate {
+      flex-grow: 1;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="row">
+      <div class="col s12 center-align">
+        <h3>🔗 Link Scrubber 🛀</h3>
+        <p>Link Scrubber helps you remove everything added to the end of your URLs. Copy a link into the input field below and click the "Scrub" button to clean it.</p>
+      </div>
+    </div>
+    <div class="row">
+      <div class="input-field col s12 m10 l8 xl6 offset-m1 offset-l2 offset-xl3">
+        <input id="urlInput" type="text" placeholder="Paste your link here">
+      </div>
+      <div class="col s12 center-align">
+        <button class="btn waves-effect waves-light scrub-btn" onclick="scrubUrl()">🛀 Scrub</button>
+      </div>
+    </div>
+    <div class="row log" id="log"></div>
+    <div class="row">
+      <div class="col s12 center-align">
+        <button class="btn waves-effect waves-light clear-list-btn" onclick="clearList()">🗑️ Clear List</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+  <script>
+    function scrubUrl() {
+      const urlInput = document.getElementById('urlInput');
+      const url = new URL(urlInput.value);
+
+      url.search = '';
+      url.hash = '';
+      urlInput.value = '';
+
+      addToLog(url.href);
+    }
+
+    function addToLog(cleanUrl) {
+      const log = document.getElementById('log');
+      const newRow = document.createElement('div');
+      newRow.classList.add('col', 's12');
+
+      newRow.innerHTML = `
+        <div class="card-panel">
+          <button class="btn-flat waves-effect waves-light" onclick="removeUrl(this)">
+            <i class="material-icons">close</i>
+          </button>
+          <span class="truncate">${cleanUrl}</span>
+          <button class="btn-flat waves-effect waves-light" data-url="${cleanUrl}" onclick="copyUrl(this)">
+            <i class="material-icons">content_copy</i>
+          </button>
+        </div>
+      `;
+      log.appendChild(newRow);
+    }
+
+    function copyUrl(element) {
+      const url = element.getAttribute('data-url');
+      const textarea = document.createElement('textarea');
+      textarea.value = url;
+      document.body.appendChild(textarea);
+      textarea.select();
+      document.execCommand('copy');
+      document.body.removeChild(textarea);
+      M.toast({html: 'Copied to clipboard!'});
+    }
+
+    function removeUrl(element) {
+      const cardPanel = element.closest('.card-panel');
+      cardPanel.parentElement.remove();
+    }
+
+    function clearList() {
+      const log = document.getElementById('log');
+      while (log.firstChild) {
+        log.firstChild.remove();
+      }
+    }
+  </script>
+</body>
+</html>
